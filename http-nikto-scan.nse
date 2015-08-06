@@ -2,6 +2,22 @@ description = [[ "This script will run nikto on web servers found" ]]
 author = {"Sanoop Thomas a.k.a. @s4n7h0"} 
 category = {"safe","discovery","vuln"}
 
+---
+-- @usage
+--
+-- nmap --script http-nikto-scan <ip>
+--
+-- @args http-nikto-scan.display		shows nikto scan result in nmap scan, takes values "on" or "off". [default : "off"]
+---
+--PORT     STATE SERVICE      REASON
+--80/tcp   open  http         syn-ack
+--| http-nikto-scan: 
+--|_  nikto scan result saved to http-nikto-scan-172.16.100.129:80.html
+--8080/tcp open  http-proxy   syn-ack
+--| http-nikto-scan: 
+--|_  nikto scan result saved to http-nikto-scan-172.16.100.129:8080.html
+---
+
 local shortport = require('shortport')
 local stdnse = require('stdnse')
 
