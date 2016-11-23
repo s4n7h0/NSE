@@ -1,3 +1,4 @@
+
 description = [[ 
 "This script will spider the given URL (or you can give specific URL to test), 
 and test for shell shock vulnerbility by accessible /etc/passwd file on the remote machine. 
@@ -182,4 +183,5 @@ action = function(host, port)
 	if flag == 1 then
 		return "This system is vulnerable for shellshock on " .. reason .. stdnse.format_output(true, fi)
 	end
+	return "test script running"
 end
