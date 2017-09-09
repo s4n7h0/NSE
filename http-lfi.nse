@@ -31,9 +31,9 @@ author = "Sanoop Thomas (@s4n7h0)"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories =  {"exploit", "intrusive"}
 
-require 'httpspider'
-require 'shortport'
-require 'url'
+httpspider = require 'httpspider'
+shortport = require 'shortport'
+url = require 'url'
 
 portrule = shortport.http
 
