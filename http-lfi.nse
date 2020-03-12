@@ -1,3 +1,4 @@
+
 description = [[ 
 "http-lfi.nse can discover LFI exploit in a web server using the resource value provided. 
 this supports LFI discovery in both windows and linux servers, at the same time, 
@@ -146,8 +147,8 @@ action = function(host, port)
                        	                		end
                        	        		end
 						if flag==1 then
-                       	        			break
-                       				end
+                       	     	break
+                       		end
 					else
 						-- checking for /etc/passwd file pattern
 		        	        	for line in response.body:gmatch("[^\r\n]+") do
@@ -157,8 +158,8 @@ action = function(host, port)
 	                	        		end
 		        	        	end
 						if flag==1 then
-	     	        	        	        break
-	                	        	end
+	     	        	     	break
+	                	     end
 					end
 				end
 			end

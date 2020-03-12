@@ -1,5 +1,7 @@
+
+
 local http = require "http"
-local shortport = require "shortport"
+local shortport = require "shortport" 
 
 description = [[
 HTTP.sys Denial of Service(BSoD). This script will check if scanned hosts are vulnerable to CVE-2015-1635 / MS15-034. 
@@ -25,7 +27,7 @@ author = "Sanoop Thomas"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
-portrule = shortport.http
+portrule = shortport.http  
 
 action = function(host, port)
   local uri = ""
@@ -44,15 +46,17 @@ action = function(host, port)
 
   print(uri)
   local resp = http.get(host, port, uri, payload)
+  
 
   for k,v in pairs(resp.rawheader) do
     if v:match("IIS") then
+    
 	if resp["status-line"]:match("Requested Range Not Satisfiable") and resp.status == 416 then
           return "host is vulnerable to MS15-034"
         else
-          return "host is not vulnerable to MS15-034"
+          return "host is not vulnerable to MS15-034" 
         end
     end
-  end
-  return "nothing"
+  end 
+  return "No IIS webserver found on " .. stdnse.format_output(true, host)
 end
