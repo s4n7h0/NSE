@@ -20,7 +20,8 @@ https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228
 
 ---
 -- @usage
--- nmap --script=http-log4shell --script-args='callback_type=[collaborator, canary, interactsh, dnslog, huntress, requestbin],callback_token=[token],inject=[header,x-api-version]' <target>
+-- nmap --script=http-log4shell --script-args='callback_type=[collaborator, canary, interactsh, dnslog, huntress, requestbin],\
+--                              callback_token=[token],inject=[header,x-api-version]' <target>
 --
 -- @output
 -- PORT   STATE SERVICE REASON
